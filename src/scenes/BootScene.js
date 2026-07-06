@@ -42,6 +42,7 @@ export default class BootScene extends Phaser.Scene {
     this.makePlayerGlowTexture();
     this.makePillarTextures();
     this.makeCloudTexture();
+    this.makeStarTexture();
     this.makeParticleTexture();
     this.makeSparkTexture();
     this.makeGroundTexture();
@@ -85,44 +86,86 @@ export default class BootScene extends Phaser.Scene {
     g.destroy();
   }
 
-  // --- Pillars: rounded, gradient-ish modern pillars with highlight. ---
+  // --- Pillars: segmented "crystal tower" bodies with rim light, panel
+  // grooves, glowing accent lights, and a wide cap whose gap-facing edge
+  // glows so the safe passage reads instantly. ---
   makePillarTextures() {
     const w = TUNING.pillarWidth;
     const h = 600;
 
-    // Body texture (vertical band). We draw a vertical gradient by stacking
-    // horizontal strips between obstacle + obstacleDark colors.
     const g = this.make.graphics({ x: 0, y: 0, add: false });
     const top = Phaser.Display.Color.IntegerToColor(COLORS.obstacle);
     const bottom = Phaser.Display.Color.IntegerToColor(COLORS.obstacleDark);
 
+    // Horizontal gradient = side lighting (light on the left, shaded right).
     for (let x = 0; x < w; x++) {
-      const t = x / w;
       const c = Phaser.Display.Color.Interpolate.ColorWithColor(top, bottom, w, x);
-      const color = Phaser.Display.Color.GetColor(c.r, c.g, c.b);
-      g.fillStyle(color, 1);
+      g.fillStyle(Phaser.Display.Color.GetColor(c.r, c.g, c.b), 1);
       g.fillRect(x, 0, 1, h);
     }
-    // Glossy highlight stripe.
-    g.fillStyle(COLORS.white, 0.18);
-    g.fillRoundedRect(7, 6, 10, h - 12, 5);
-    // Edge shading.
-    g.fillStyle(0x000000, 0.12);
-    g.fillRect(w - 8, 0, 8, h);
+
+    // Glossy highlight stripe + a slim secondary sheen.
+    g.fillStyle(COLORS.white, 0.2);
+    g.fillRoundedRect(7, 6, 9, h - 12, 4);
+    g.fillStyle(COLORS.white, 0.07);
+    g.fillRect(21, 0, 4, h);
+
+    // Rim light on the lit edge, deeper shading on the far edge.
+    g.fillStyle(COLORS.white, 0.28);
+    g.fillRect(0, 0, 2, h);
+    g.fillStyle(0x000000, 0.18);
+    g.fillRect(w - 6, 0, 6, h);
+
+    // Panel grooves every 64px: dark cut with a bevel light beneath.
+    for (let y = 64; y < h; y += 64) {
+      g.fillStyle(0x000000, 0.16);
+      g.fillRect(2, y, w - 8, 3);
+      g.fillStyle(COLORS.white, 0.1);
+      g.fillRect(2, y + 3, w - 8, 2);
+    }
+
+    // Small glowing accent lights, one per segment.
+    for (let y = 32; y < h; y += 64) {
+      g.fillStyle(COLORS.accent, 0.28);
+      g.fillCircle(w - 17, y, 5);
+      g.fillStyle(COLORS.accent, 0.75);
+      g.fillCircle(w - 17, y, 3);
+      g.fillStyle(COLORS.white, 0.85);
+      g.fillCircle(w - 18, y - 1, 1.3);
+    }
 
     g.generateTexture('pillar-body', w, h);
     g.destroy();
 
-    // Rounded cap that sits on the gap-facing end of each pillar.
-    const capH = 28;
+    // Cap: slightly wider than the body (visual-only overhang — the hitbox
+    // stays the body width, so any corner graze is forgiven, never unfair).
+    // The gap-facing edge (texture bottom; ObstacleManager flips the lower
+    // cap) carries a bright accent glow line marking the safe opening.
+    const capW = w + 10;
+    const capH = 30;
     const cg = this.make.graphics({ x: 0, y: 0, add: false });
+
+    // Body with rounded corners toward the gap.
     cg.fillStyle(COLORS.obstacle, 1);
-    cg.fillRoundedRect(0, 0, w, capH, { tl: 12, tr: 12, bl: 4, br: 4 });
-    cg.fillStyle(COLORS.white, 0.25);
-    cg.fillRoundedRect(6, 5, w - 12, 8, 4);
-    cg.fillStyle(0x000000, 0.1);
-    cg.fillRect(0, capH - 4, w, 4);
-    cg.generateTexture('pillar-cap', w, capH);
+    cg.fillRoundedRect(0, 0, capW, capH, { tl: 5, tr: 5, bl: 12, br: 12 });
+    // Shaded upper portion (away from the gap) for depth.
+    cg.fillStyle(0x000000, 0.15);
+    cg.fillRoundedRect(0, 0, capW, 10, { tl: 5, tr: 5, bl: 0, br: 0 });
+    // Glossy band.
+    cg.fillStyle(COLORS.white, 0.3);
+    cg.fillRoundedRect(5, 4, capW - 10, 7, 3);
+    // Side shading matching the body's lighting.
+    cg.fillStyle(COLORS.white, 0.22);
+    cg.fillRect(1, 4, 2, capH - 10);
+    cg.fillStyle(0x000000, 0.16);
+    cg.fillRect(capW - 6, 4, 5, capH - 10);
+    // Glowing gap edge: soft halo + bright core line.
+    cg.fillStyle(COLORS.accent, 0.35);
+    cg.fillRoundedRect(2, capH - 9, capW - 4, 7, 3);
+    cg.fillStyle(0xeaffff, 0.9);
+    cg.fillRoundedRect(3, capH - 5, capW - 6, 3, 1.5);
+
+    cg.generateTexture('pillar-cap', capW, capH);
     cg.destroy();
   }
 
@@ -136,6 +179,35 @@ export default class BootScene extends Phaser.Scene {
     g.fillCircle(88, 38, 20);
     g.fillRoundedRect(20, 36, 80, 20, 10);
     g.generateTexture('cloud', w, h);
+    g.destroy();
+  }
+
+  // Five-pointed star collectible (charges the dash meter).
+  makeStarTexture() {
+    const size = 28;
+    const cx = size / 2;
+    const cy = size / 2;
+    const outer = 12;
+    const inner = 5;
+    const g = this.make.graphics({ x: 0, y: 0, add: false });
+
+    // Soft glow behind the star.
+    g.fillStyle(COLORS.star, 0.25);
+    g.fillCircle(cx, cy, 13);
+
+    const points = [];
+    for (let i = 0; i < 10; i++) {
+      const r = i % 2 === 0 ? outer : inner;
+      const a = -Math.PI / 2 + (i * Math.PI) / 5;
+      points.push(new Phaser.Geom.Point(cx + Math.cos(a) * r, cy + Math.sin(a) * r));
+    }
+    g.fillStyle(COLORS.star, 1);
+    g.fillPoints(points, true);
+    // Tiny highlight.
+    g.fillStyle(COLORS.white, 0.8);
+    g.fillCircle(cx - 2, cy - 3, 2.5);
+
+    g.generateTexture('star', size, size);
     g.destroy();
   }
 

@@ -1,15 +1,23 @@
 # 🐦 Sky Dash
 
-A polished, one-tap arcade game inspired by Flappy Bird — built with **Phaser 3** and **Vite**.
-Tap, click, or press **Space** to flap. Dodge the glowing pillars, score points, and beat your best.
+A polished, one-tap arcade game — built with **Phaser 3** and **Vite**.
+Tap, click, or press **Space** to flap. Dodge the glowing pillars, collect stars,
+and **hold to Dash** — a burst of invincible speed that blasts you through anything.
 
 ![Phaser](https://img.shields.io/badge/Phaser-3.90-blue) ![Vite](https://img.shields.io/badge/Vite-5-purple)
 
 ## ✨ Features
 
 - **One-tap gameplay** — mouse, touch, and keyboard (Space / ↑) all flap.
+- **The Dash** ⚡ — collect **3 stars** to fill the meter, then **hold** any input to dash:
+  ~0.7s of invincibility at 2.4× speed with afterimages, camera punch, and a whoosh.
+  A post-dash grace period guarantees you never exit a dash inside a pillar.
+- **Star collectibles** ★ — spawn inside pillar gaps at risky offsets; a classic
+  risk/reward detour that charges your dash.
+- **Moving pillars** — from score 10, some pillar pairs oscillate vertically,
+  so late-game runs demand timing as well as precision.
 - **Instant replay loop** — no menus between attempts; restart in a single tap.
-- **Procedural visuals** — gradient sky, parallax clouds, scrolling ground, glowing orb with a particle trail, and modern rounded pillars. No image assets required.
+- **Procedural visuals** — gradient sky, parallax clouds, scrolling ground, glowing orb with a particle trail, and segmented crystal-tower pillars: rim lighting, panel grooves, glowing accent lights, and caps whose gap-facing edge glows to mark the safe opening. Moving pillars are tinted violet so they read at a glance. No image assets required.
 - **Juice** — screen shake, impact flash, death + score particle bursts, score "pop" tweens, smooth scene fades, and a day → dusk colour shift as you climb.
 - **Fair difficulty ramp** — the gap narrows and the world speeds up as your score rises, capped so it stays beatable.
 - **Procedural audio** — synthesized flap / score / hit sounds via the Web Audio API (no audio files). Includes a mute toggle. Audio stays silent until your first interaction.
@@ -21,6 +29,7 @@ Tap, click, or press **Space** to flap. Dodge the glowing pillars, score points,
 | Action | Input |
 | ------ | ----- |
 | Flap / Start / Restart | Tap · Left-click · `Space` · `↑` |
+| Dash (needs 3 ★) | **Hold** any flap input ~0.2s |
 | Mute / Unmute | 🔊 button (top-right) |
 
 ## 🛠️ Tech Stack
@@ -46,8 +55,9 @@ Tap, click, or press **Space** to flap. Dodge the glowing pillars, score points,
     │   ├── GameScene.js     # Core gameplay loop
     │   └── GameOverScene.js # Score, best, restart
     ├── objects/
-    │   ├── Player.js          # Orb: gravity, flap, tilt, trail
-    │   ├── ObstacleManager.js # Pooled pillar pairs + scoring
+    │   ├── Player.js          # Orb: gravity, flap, dash, tilt, trail
+    │   ├── ObstacleManager.js # Pooled pillar pairs (incl. movers) + scoring
+    │   ├── StarManager.js     # Pooled star collectibles (dash charge)
     │   ├── Background.js       # Gradient sky, parallax, ground
     │   └── MuteButton.js       # Shared mute toggle
     └── utils/
@@ -99,7 +109,8 @@ Accept the defaults when prompted — the included `vercel.json` supplies the bu
 ## 🎛️ Tuning
 
 All gameplay feel lives in [`src/config.js`](src/config.js) — gravity, flap strength,
-scroll speed, gap size, and the difficulty ramp. Tweak `TUNING` to make it easier or harder.
+scroll speed, gap size, the difficulty ramp, star frequency, dash duration/speed,
+and moving-pillar behaviour. Tweak `TUNING` to make it easier or harder.
 
 ## 📄 License
 

@@ -16,6 +16,7 @@ export default class GameOverScene extends Phaser.Scene {
 
   init(data) {
     this.finalScore = data.score || 0;
+    this.finalStars = data.stars || 0;
   }
 
   create() {
@@ -56,6 +57,18 @@ export default class GameOverScene extends Phaser.Scene {
       .setStroke('#1b2a4a', 6)
       .setAlpha(0);
     this.tweens.add({ targets: title, alpha: 1, y: 210, duration: 300, ease: 'Quad.out' });
+
+    // Stars collected this run.
+    this.add
+      .text(GAME_WIDTH / 2, 250, `★ ${this.finalStars} stars collected`, {
+        fontFamily: 'Arial, sans-serif',
+        fontSize: '15px',
+        color: '#ffd94d',
+        fontStyle: 'bold',
+      })
+      .setOrigin(0.5)
+      .setDepth(30)
+      .setShadow(0, 2, 'rgba(0,0,0,0.4)', 3);
 
     // Score + best.
     this.add

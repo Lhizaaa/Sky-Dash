@@ -16,6 +16,7 @@ export const COLORS = {
   ground: 0x3a2f4a,
   groundTop: 0x6f5a8c,
   accent: 0x6fd3ff,
+  star: 0xffd94d,
   white: 0xffffff,
 };
 
@@ -41,6 +42,24 @@ export const TUNING = {
   pillarWidth: 70,
 
   groundHeight: 90,
+
+  // Stars — collectibles that charge the dash meter. Placed inside pillar
+  // gaps at a random vertical offset, so grabbing them adds risk.
+  starChance: 0.6, // chance a pillar pair carries a star
+
+  // Dash — Sky Dash's signature move. Collect stars to fill the meter,
+  // then HOLD input to blast forward: brief invincibility + speed burst.
+  starsPerDash: 3,
+  dashHoldMs: 220, // hold input this long (with a full meter) to dash
+  dashDuration: 700, // ms of invincible speed burst
+  dashSpeedMult: 2.4, // scroll-speed multiplier while dashing
+  dashGraceMs: 180, // min invincibility after the dash ends (extends until clear of pillars)
+
+  // Moving pillars — past this score, some pairs oscillate vertically.
+  moverStartScore: 10,
+  moverChance: 0.35,
+  moverAmplitude: 46, // px of vertical travel each way
+  moverPeriodMs: 2400, // full oscillation period
 };
 
 export const STORAGE_KEY = 'skydash.best';

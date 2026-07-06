@@ -62,6 +62,17 @@ export const Sfx = {
     tone({ freq: 660, type: 'triangle', duration: 0.16, gain: 0.16 });
     setTimeout(() => tone({ freq: 880, type: 'triangle', duration: 0.2, gain: 0.16 }), 130);
   },
+  star() {
+    tone({ freq: 880, slideTo: 1320, type: 'sine', duration: 0.09, gain: 0.12 });
+  },
+  dashReady() {
+    tone({ freq: 780, type: 'triangle', duration: 0.1, gain: 0.14 });
+    setTimeout(() => tone({ freq: 1170, type: 'triangle', duration: 0.14, gain: 0.14 }), 90);
+  },
+  dash() {
+    tone({ freq: 160, slideTo: 900, type: 'sawtooth', duration: 0.28, gain: 0.13 });
+    tone({ freq: 320, slideTo: 1800, type: 'sine', duration: 0.28, gain: 0.08 });
+  },
 };
 
 export function isMuted() {

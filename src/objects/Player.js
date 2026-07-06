@@ -33,6 +33,8 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 
     this.isFrozen = true; // hovers idle until first flap
     this.isDead = false;
+    this.isDashing = false;
+    this.invincible = false; // true during dash + post-dash grace
     this.body.setAllowGravity(false);
 
     // Idle hover tween while frozen.
@@ -57,8 +59,41 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
     this.flap();
   }
 
-  flap() {
+  // Dash: lock the orb level, cut gravity, and light everything up.
+  // Invincibility is cleared by the scene once the post-dash grace ends.
+  startDash() {
     if (this.isDead) return;
+    this.isDashing = true;
+    this.invincible = true;
+    this.body.setAllowGravity(false);
+    this.setVelocity(0, 0);
+    this.setTint(0xbfefff);
+    this.glow.setAlpha(1).setScale(1.35);
+    this.trail.frequency = 12;
+    this.scene.tweens.add({
+      targets: this,
+      angle: 0,
+      duration: 100,
+      ease: 'Quad.out',
+    });
+  }
+
+  endDash() {
+    this.isDashing = false;
+    this.body.setAllowGravity(true);
+    // Soft upward nudge so the player regains control gracefully.
+    this.setVelocityY(TUNING.flapVelocity * 0.5);
+    this.trail.frequency = 35;
+    this.glow.setAlpha(0.8).setScale(1);
+  }
+
+  clearInvincible() {
+    this.invincible = false;
+    this.clearTint();
+  }
+
+  flap() {
+    if (this.isDead || this.isDashing) return;
     this.setVelocityY(TUNING.flapVelocity);
     Sfx.flap();
 

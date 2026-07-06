@@ -84,12 +84,12 @@ export default class MenuScene extends Phaser.Scene {
     });
 
     // Control hint pill — clearer and high-contrast.
-    createButton(this, GAME_WIDTH / 2, GAME_HEIGHT - 124, 'Tap  ·  Click  ·  Space  to Flap', {
+    createButton(this, GAME_WIDTH / 2, GAME_HEIGHT - 124, 'Tap to Flap  ·  Collect ★  ·  Hold to Dash', {
       variant: 'hint',
-      width: 300,
+      width: 356,
       height: 48,
       radius: 24,
-      fontSize: 17,
+      fontSize: 14,
       depth: 30,
     });
 
